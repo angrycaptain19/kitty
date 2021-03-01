@@ -35,14 +35,10 @@ class LineEdit:
         if screen_cols:
             write(SAVE_CURSOR + text + RESTORE_CURSOR)
             used_lines, last_line_cursor_pos = divmod(cursor_pos, screen_cols)
-            if used_lines == 0:
-                if last_line_cursor_pos:
-                    write(move_cursor_by(last_line_cursor_pos, 'right'))
-            else:
-                if used_lines:
-                    write(move_cursor_by(used_lines, 'down'))
-                if last_line_cursor_pos:
-                    write(move_cursor_by(last_line_cursor_pos, 'right'))
+            if used_lines != 0 and used_lines:
+                write(move_cursor_by(used_lines, 'down'))
+            if last_line_cursor_pos:
+                write(move_cursor_by(last_line_cursor_pos, 'right'))
         else:
             write(text)
             write('\r')

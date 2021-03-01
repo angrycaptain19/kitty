@@ -115,22 +115,23 @@ class DumpCommands:  # {{{
             self.dump_bytes_to = open(args.dump_bytes, 'wb')
 
     def __call__(self, *a: Any) -> None:
-        if a:
-            if a[0] == 'draw':
-                if a[1] is None:
-                    if self.draw_dump_buf:
-                        safe_print('draw', ''.join(self.draw_dump_buf))
-                        self.draw_dump_buf = []
-                else:
-                    self.draw_dump_buf.append(a[1])
-            elif a[0] == 'bytes':
-                self.dump_bytes_to.write(a[1])
-                self.dump_bytes_to.flush()
-            else:
+        if not a:
+            return
+        if a[0] == 'draw':
+            if a[1] is None:
                 if self.draw_dump_buf:
                     safe_print('draw', ''.join(self.draw_dump_buf))
                     self.draw_dump_buf = []
-                safe_print(*a)
+            else:
+                self.draw_dump_buf.append(a[1])
+        elif a[0] == 'bytes':
+            self.dump_bytes_to.write(a[1])
+            self.dump_bytes_to.flush()
+        else:
+            if self.draw_dump_buf:
+                safe_print('draw', ''.join(self.draw_dump_buf))
+                self.draw_dump_buf = []
+            safe_print(*a)
 # }}}
 
 
@@ -260,10 +261,7 @@ class Boss:
             pat: MatchPatternType = re.compile(exp)
         else:
             kp, vp = exp.partition('=')[::2]
-            if vp:
-                pat = re.compile(kp), re.compile(vp)
-            else:
-                pat = re.compile(kp), None
+            pat = (re.compile(kp), re.compile(vp)) if vp else (re.compile(kp), None)
         for window in self.all_windows:
             if window.matches(field, pat):
                 yield window
@@ -420,9 +418,8 @@ class Boss:
 
     def handle_remote_cmd(self, cmd: str, window: Optional[Window] = None) -> None:
         response = self._handle_remote_command(cmd, window)
-        if response is not None:
-            if window is not None:
-                window.send_cmd_response(response)
+        if response is not None and window is not None:
+            window.send_cmd_response(response)
 
     def _cleanup_tab_after_window_removal(self, src_tab: Tab) -> None:
         if len(src_tab) < 1:
@@ -430,9 +427,8 @@ class Boss:
             if tm is not None:
                 tm.remove(src_tab)
                 src_tab.destroy()
-                if len(tm) == 0:
-                    if not self.shutting_down:
-                        mark_os_window_for_close(src_tab.os_window_id)
+                if len(tm) == 0 and not self.shutting_down:
+                    mark_os_window_for_close(src_tab.os_window_id)
 
     def on_child_death(self, window_id: int) -> None:
         window = self.window_id_map.pop(window_id, None)
@@ -569,14 +565,12 @@ class Boss:
         def calc_new_size(old_size: float) -> float:
             new_size = old_size
             if amt == 0:
-                new_size = self.opts.font_size
+                return self.opts.font_size
+            if increment_operation:
+                new_size += (1 if increment_operation == '+' else -1) * amt
             else:
-                if increment_operation:
-                    new_size += (1 if increment_operation == '+' else -1) * amt
-                else:
-                    new_size = amt
-                new_size = max(MINIMUM_FONT_SIZE, min(new_size, self.opts.font_size * 5))
-            return new_size
+                new_size = amt
+            return max(MINIMUM_FONT_SIZE, min(new_size, self.opts.font_size * 5))
 
         if all_windows:
             current_global_size = global_font_size()
@@ -823,9 +817,7 @@ class Boss:
 
     def quit(self, *args: Any) -> None:
         tm = self.active_tab
-        num = 0
-        for q in self.os_window_map.values():
-            num += q.number_of_windows
+        num = sum(q.number_of_windows for q in self.os_window_map.values())
         needs_confirmation = tm is not None and self.opts.confirm_os_window_close > 0 and num >= self.opts.confirm_os_window_close
         if not needs_confirmation:
             set_application_quit_request(IMPERATIVE_CLOSE_REQUESTED)
@@ -869,13 +861,10 @@ class Boss:
         self.new_os_window(*cmd)
 
     def get_output(self, source_window: Window, num_lines: Optional[int] = 1) -> str:
-        output = ''
         s = source_window.screen
         if num_lines is None:
             num_lines = s.lines
-        for i in range(min(num_lines, s.lines)):
-            output += str(s.linebuf.line(i))
-        return output
+        return ''.join(str(s.linebuf.line(i)) for i in range(min(num_lines, s.lines)))
 
     def _run_kitten(
         self,
@@ -1054,8 +1043,8 @@ class Boss:
             if actions:
                 found_action = True
                 self.dispatch_action(actions.pop(0))
-                if actions:
-                    self.drain_actions(actions)
+            if actions:
+                self.drain_actions(actions)
         if not found_action:
             open_url(url, program or self.opts.open_url_with, cwd=cwd)
 

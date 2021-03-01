@@ -178,7 +178,7 @@ def zsh_output_serializer(ans: Completions) -> str:
         if ans.delegate.num_of_unknown_args == 1 and not ans.delegate.new_word:
             lines.append('_command_names -e')
         elif ans.delegate.precommand:
-            for i in range(ans.delegate.pos + 1):
+            for _ in range(ans.delegate.pos + 1):
                 lines.append('shift words')
                 lines.append('(( CURRENT-- ))')
             lines.append(f'_normal -p "{ans.delegate.precommand}"')
@@ -381,7 +381,7 @@ def complete_files_and_dirs(
     dirs, files_ = path_completion(prefix or '')
     files = filter(predicate, files_)
     if add_prefix:
-        dirs = list(add_prefix + x for x in dirs)
+        dirs = [add_prefix + x for x in dirs]
         files = (add_prefix + x for x in files)
 
     if dirs:
@@ -398,9 +398,7 @@ def complete_icat_args(ans: Completions, opt: Optional[OptionDict], prefix: str,
 
     def icat_file_predicate(filename: str) -> bool:
         mt = guess_type(filename)
-        if mt and mt.startswith('image/'):
-            return True
-        return False
+        return bool(mt and mt.startswith('image/'))
 
     if opt is None:
         complete_files_and_dirs(ans, prefix, 'Images', icat_file_predicate)

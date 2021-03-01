@@ -490,10 +490,10 @@ class TestGraphics(BaseTest):
         s, dx, dy, put_image, put_ref, layers, rect_eq = put_helpers(self, cw, ch)
         put_image(s, 10, 20)  # a one cell image at (0, 0)
         self.ae(len(layers(s)), 1)
-        for i in range(s.lines):
+        for _ in range(s.lines):
             s.index()
         self.ae(len(layers(s)), 0), self.ae(s.grman.image_count, 1)
-        for i in range(s.historybuf.ynum - 1):
+        for _ in range(s.historybuf.ynum - 1):
             s.index()
             self.ae(len(layers(s)), 0), self.ae(s.grman.image_count, 1)
         s.index()
@@ -503,15 +503,15 @@ class TestGraphics(BaseTest):
         s.reset()
         # Test images outside page area untouched
         put_image(s, cw, ch)  # a one cell image at (0, 0)
-        for i in range(s.lines - 1):
+        for _ in range(s.lines - 1):
             s.index()
         put_image(s, cw, ch)  # a one cell image at (0, bottom)
         s.set_margins(2, 4)  # 1-based indexing
         self.ae(s.grman.image_count, 2)
-        for i in range(s.lines + s.historybuf.ynum):
+        for _ in range(s.lines + s.historybuf.ynum):
             s.index()
             self.ae(s.grman.image_count, 2)
-        for i in range(s.lines):  # ensure cursor is at top margin
+        for _ in range(s.lines):  # ensure cursor is at top margin
             s.reverse_index()
         # Test clipped scrolling during index
         put_image(s, cw, 2*ch, z=-1)  # 1x2 cell image
@@ -524,7 +524,7 @@ class TestGraphics(BaseTest):
         s.index()
         self.ae(s.grman.image_count, 2)
         # Test clipped scrolling during reverse_index
-        for i in range(s.lines):
+        for _ in range(s.lines):
             s.reverse_index()
         put_image(s, cw, 2*ch, z=-1)  # 1x2 cell image
         self.ae(s.grman.image_count, 3)
@@ -547,7 +547,7 @@ class TestGraphics(BaseTest):
         self.ae(s.grman.image_count, 0)
         put_image(s, cw, ch)  # a one cell image at (0, 0)
         self.ae(s.grman.image_count, 1)
-        for i in range(s.lines):
+        for _ in range(s.lines):
             s.index()
         s.reset()
         self.ae(s.grman.image_count, 1)
@@ -644,9 +644,7 @@ class TestGraphics(BaseTest):
         img = g.image_for_client_id(1)
 
         def expand(*rows):
-            ans = []
-            for r in rows:
-                ans.append(''.join(x * 3 for x in str(r)))
+            ans = [''.join(x * 3 for x in str(r)) for r in rows]
             return ''.join(ans).encode('ascii')
 
         self.assertEqual(img['extra_frames'], ({'gap': 77, 'id': 2, 'data': expand(4433, 4433, 3333)},))

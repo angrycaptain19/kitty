@@ -159,12 +159,11 @@ ColorSpec = Union[int, str, Tuple[int, int, int]]
 
 def color_code(color: ColorSpec, intense: bool = False, base: int = 30) -> str:
     if isinstance(color, str):
-        e = str((base + 60 if intense else base) + STANDARD_COLORS[color])
+        return str((base + 60 if intense else base) + STANDARD_COLORS[color])
     elif isinstance(color, int):
-        e = '{}:5:{}'.format(base + 8, max(0, min(color, 255)))
+        return '{}:5:{}'.format(base + 8, max(0, min(color, 255)))
     else:
-        e = '{}:2:{}:{}:{}'.format(base + 8, *color)
-    return e
+        return '{}:2:{}:{}:{}'.format(base + 8, *color)
 
 
 @cmd

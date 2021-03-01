@@ -263,7 +263,7 @@ class TestScreen(BaseTest):
 
     def test_resize(self):
         s = self.create_screen(scrollback=6)
-        s.draw(''.join([str(i) * s.columns for i in range(s.lines)]))
+        s.draw(''.join(str(i) * s.columns for i in range(s.lines)))
         s.resize(3, 10)
         self.ae(str(s.line(0)), '0'*5 + '1'*5)
         self.ae(str(s.line(1)), '2'*5 + '3'*5)
@@ -308,17 +308,17 @@ class TestScreen(BaseTest):
         s = self.create_screen(cols=80, lines=2)
         s.cursor_position(1, 1)
         s.clear_tab_stop(3)
-        for col in range(1, s.columns - 1, 3):
+        for _ in range(1, s.columns - 1, 3):
             s.cursor_forward(3)
             s.set_tab_stop()
         s.cursor_position(1, 4)
-        for col in range(4, s.columns - 1, 6):
+        for _ in range(4, s.columns - 1, 6):
             s.clear_tab_stop(0)
             s.cursor_forward(6)
         s.cursor_position(1, 7)
         s.clear_tab_stop(2)
         s.cursor_position(1, 1)
-        for col in range(1, s.columns - 1, 6):
+        for _ in range(1, s.columns - 1, 6):
             s.tab()
             s.draw('*')
         s.cursor_position(2, 2)

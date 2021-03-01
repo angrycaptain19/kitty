@@ -118,10 +118,7 @@ def layout_dimension(
     for i, cells_per_window in enumerate(cells_map):
         before_dec, after_dec = decoration_pairs[i]
         pos += before_dec
-        if i == 0:
-            before_space = pos - start_at
-        else:
-            before_space = before_dec
+        before_space = pos - start_at if i == 0 else before_dec
         content_size = cells_per_window * cell_length
         if i == last_i:
             after_space = (start_at + length) - (pos + content_size)

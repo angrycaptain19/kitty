@@ -24,7 +24,7 @@ def spawnv_passfds(path: str, args: List[str], passfds: List[int]) -> Any:
     else:
         idx = args.index('--multiprocessing-fork')
         prog = 'from multiprocessing.spawn import spawn_main; spawn_main(%s)'
-        prog %= ', '.join(item for item in args[idx+1:])
+        prog %= ', '.join(args[idx+1:])
         patched_args = [spawn.get_executable(), '+runpy', prog]
     return orig_spawn_passfds(kitty_exe(), patched_args, passfds)
 

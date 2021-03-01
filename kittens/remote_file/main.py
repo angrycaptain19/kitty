@@ -100,9 +100,7 @@ def ask_action(opts: RemoteFileCLIOptions) -> str:
 def hostname_matches(from_hyperlink: str, actual: str) -> bool:
     if from_hyperlink == actual:
         return True
-    if from_hyperlink.partition('.')[0] == actual.partition('.')[0]:
-        return True
-    return False
+    return from_hyperlink.partition('.')[0] == actual.partition('.')[0]
 
 
 class ControlMaster:
@@ -268,9 +266,8 @@ def save_as(conn_data: SSHConnectionData, remote_path: str, cli_opts: RemoteFile
     if os.path.dirname(dest):
         os.makedirs(os.path.dirname(dest), exist_ok=True)
     with ControlMaster(conn_data, remote_path, cli_opts, dest=dest) as master:
-        if master.check_hostname_matches():
-            if not master.download():
-                show_error('Failed to copy file from remote machine')
+        if master.check_hostname_matches() and not master.download():
+            show_error('Failed to copy file from remote machine')
 
 
 def handle_action(action: str, cli_opts: RemoteFileCLIOptions) -> Result:

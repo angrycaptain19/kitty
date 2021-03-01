@@ -437,7 +437,7 @@ class TestParser(BaseTest):
             self.ae(c.bold, False)
             self.ae(c.fg, 0)
         line = s.line(1)
-        for x in range(0, 3):
+        for x in range(3):
             c = line.cursor_from(x)
             self.ae(c.bold, False)
         self.ae(line.cursor_from(3).bold, True)

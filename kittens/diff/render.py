@@ -347,10 +347,7 @@ def lines_for_chunk(data: DiffData, hunk_num: int, chunk: Chunk, chunk_num: int)
                         x, fl = rl, data.right_filler_line
                     x.extend(repeat(fl, extra))
             else:
-                if ll:
-                    x, count = rl, len(ll)
-                else:
-                    x, count = ll, len(rl)
+                x, count = (rl, len(ll)) if ll else (ll, len(rl))
                 x.extend(repeat(data.filler_line, count))
             for wli, (left_line, right_line) in enumerate(zip(ll, rl)):
                 ref = Reference(ref_path, LineRef(ref_ln, wli))

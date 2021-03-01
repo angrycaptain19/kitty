@@ -62,7 +62,7 @@ class ScrollWindow(RemoteCommand):
                     unit = 'page' if unit == 'p' else 'line'
                     direction = 'up' if amt < 0 else 'down'
                     func = getattr(window, 'scroll_{}_{}'.format(unit, direction))
-                    for i in range(abs(amt)):
+                    for _ in range(abs(amt)):
                         func()
 
 

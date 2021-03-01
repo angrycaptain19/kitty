@@ -56,9 +56,11 @@ def ignore_in_lib(base, items, ignored_dirs=None):
     for name in items:
         path = j(base, name)
         if os.path.isdir(path):
-            if name in ignored_dirs or not os.path.exists(j(path, '__init__.py')):
-                if name != 'plugins':
-                    ans.append(name)
+            if (
+                name in ignored_dirs
+                or not os.path.exists(j(path, '__init__.py'))
+            ) and name != 'plugins':
+                ans.append(name)
         else:
             if name.rpartition('.')[-1] not in ('so', 'py'):
                 ans.append(name)

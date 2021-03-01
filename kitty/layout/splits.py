@@ -527,22 +527,23 @@ class Splits(Layout):
         return moved
 
     def layout_action(self, action_name: str, args: Sequence[str], all_windows: WindowList) -> Optional[bool]:
-        if action_name == 'rotate':
-            args = args or ('90',)
-            try:
-                amt = int(args[0])
-            except Exception:
-                amt = 90
-            if amt not in (90, 180, 270):
-                amt = 90
-            rotate = amt in (90, 270)
-            swap = amt in (180, 270)
-            wg = all_windows.active_group
-            if wg is not None:
-                pair = self.pairs_root.pair_for_window(wg.id)
-                if pair is not None and not pair.is_redundant:
-                    if rotate:
-                        pair.horizontal = not pair.horizontal
-                    if swap:
-                        pair.one, pair.two = pair.two, pair.one
-                    return True
+        if action_name != 'rotate':
+            return
+        args = args or ('90',)
+        try:
+            amt = int(args[0])
+        except Exception:
+            amt = 90
+        if amt not in (90, 180, 270):
+            amt = 90
+        wg = all_windows.active_group
+        if wg is not None:
+            pair = self.pairs_root.pair_for_window(wg.id)
+            if pair is not None and not pair.is_redundant:
+                rotate = amt in (90, 270)
+                if rotate:
+                    pair.horizontal = not pair.horizontal
+                swap = amt in (180, 270)
+                if swap:
+                    pair.one, pair.two = pair.two, pair.one
+                return True

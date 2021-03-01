@@ -216,9 +216,7 @@ class KeyEvent(NamedTuple):
         if (self.mods, self.key) == spec:
             return True
         is_shifted = bool(self.shifted_key and self.shift)
-        if is_shifted and (self.mods & ~SHIFT, self.shifted_key) == spec:
-            return True
-        return False
+        return is_shifted and (self.mods & ~SHIFT, self.shifted_key) == spec
 
     def as_window_system_event(self) -> WindowSystemKeyEvent:
         action = defines.GLFW_PRESS
@@ -316,10 +314,7 @@ def encode_key_event(key_event: KeyEvent) -> str:
     shifted_key = csi_number_for_name(key_event.shifted_key)
     alternate_key = csi_number_for_name(key_event.alternate_key)
     lt = get_csi_number_to_letter_trailer_map()
-    if key_event.key == 'ENTER':
-        trailer = 'u'
-    else:
-        trailer = lt.get(key, 'u')
+    trailer = 'u' if key_event.key == 'ENTER' else lt.get(key, 'u')
     if trailer != 'u':
         key = 1
     mods = key_event.mods
@@ -329,8 +324,8 @@ def encode_key_event(key_event: KeyEvent) -> str:
         ans += f'{key}'
     if shifted_key or alternate_key:
         ans += ':' + (f'{shifted_key}' if shifted_key else '')
-        if alternate_key:
-            ans += f':{alternate_key}'
+    if alternate_key:
+        ans += f':{alternate_key}'
     action = 1
     if key_event.type is EventType.REPEAT:
         action = 2
@@ -346,10 +341,11 @@ def encode_key_event(key_event: KeyEvent) -> str:
             m |= 4
         if key_event.super:
             m |= 8
-        if action > 1 or m:
+        if action > 1:
             ans += f';{m+1}'
-            if action > 1:
-                ans += f':{action}'
+            ans += f':{action}'
+        elif m:
+            ans += f';{m+1}'
         elif text:
             ans += ';'
     if text:

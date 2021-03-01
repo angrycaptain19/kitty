@@ -88,13 +88,13 @@ def get_latest_release_data():
             if name.endswith('.dmg'):
                 return html_url + '/' + name, asset['size']
         else:
-            if name.endswith('.txz'):
-                if is64bit:
-                    if name.endswith('-x86_64.txz'):
-                        return html_url + '/' + name, asset['size']
-                else:
-                    if name.endswith('-i686.txz'):
-                        return html_url + '/' + name, asset['size']
+            if name.endswith('.txz') and (
+                is64bit
+                and name.endswith('-x86_64.txz')
+                or not is64bit
+                and name.endswith('-i686.txz')
+            ):
+                return html_url + '/' + name, asset['size']
     raise SystemExit('Failed to find the installer package on github')
 
 
@@ -180,10 +180,7 @@ def linux_install(installer, dest=os.path.expanduser('~/.local'), launch=True):
 
 def main(dest=None, launch=True, installer=None):
     if not dest:
-        if is_macos:
-            dest = '/Applications'
-        else:
-            dest = os.path.expanduser('~/.local')
+        dest = '/Applications' if is_macos else os.path.expanduser('~/.local')
     machine = os.uname()[4]
     if machine and machine.lower().startswith('arm'):
         raise SystemExit(

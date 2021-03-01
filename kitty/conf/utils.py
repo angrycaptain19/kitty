@@ -235,8 +235,7 @@ def resolve_config(SYSTEM_CONF: str, defconf: str, config_files_on_cmd_line: Seq
     if config_files_on_cmd_line:
         if 'NONE' not in config_files_on_cmd_line:
             yield SYSTEM_CONF
-            for cf in config_files_on_cmd_line:
-                yield cf
+            yield from config_files_on_cmd_line
     else:
         yield SYSTEM_CONF
         yield defconf

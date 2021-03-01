@@ -312,9 +312,13 @@ def launch(
         kw['overlay_for'] = active.id
     if opts.stdin_source != 'none':
         q = str(opts.stdin_source)
-        if opts.stdin_add_formatting:
-            if q in ('@screen', '@screen_scrollback', '@alternate', '@alternate_scrollback'):
-                q = '@ansi_' + q[1:]
+        if opts.stdin_add_formatting and q in (
+            '@screen',
+            '@screen_scrollback',
+            '@alternate',
+            '@alternate_scrollback',
+        ):
+            q = '@ansi_' + q[1:]
         if opts.stdin_add_line_wrap_markers:
             q += '_wrap'
         penv, stdin = boss.process_stdin_source(window=active, stdin=q)

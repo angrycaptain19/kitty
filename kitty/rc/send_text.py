@@ -151,14 +151,15 @@ Do not send text to the active window, even if it is one of the matched windows.
             raise TypeError(f'Invalid encoding for send-text data: {encoding}')
         exclude_active = payload_get('exclude_active')
         for window in windows:
-            if window is not None:
-                if not exclude_active or window is not boss.active_window:
-                    if isinstance(data, WindowSystemKeyEvent):
-                        kdata = window.encoded_key(data)
-                        if kdata:
-                            window.write_to_child(kdata)
-                    else:
-                        window.write_to_child(data)
+            if window is not None and (
+                not exclude_active or window is not boss.active_window
+            ):
+                if isinstance(data, WindowSystemKeyEvent):
+                    kdata = window.encoded_key(data)
+                    if kdata:
+                        window.write_to_child(kdata)
+                else:
+                    window.write_to_child(data)
 
 
 send_text = SendText()

@@ -167,8 +167,8 @@ def main(args: List[str]) -> Response:
         if cli_opts.message:
             print(styled(cli_opts.message, bold=True))
 
-        prompt = '> '
         with suppress(KeyboardInterrupt, EOFError):
+            prompt = '> '
             response = input(prompt)
     return {'items': items, 'response': response}
 

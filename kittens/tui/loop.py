@@ -312,9 +312,8 @@ class Loop:
                 self.handler.on_clipboard_response(standard_b64decode(rest).decode('utf-8'), from_primary)
 
     def _on_apc(self, apc: str) -> None:
-        if apc.startswith('G'):
-            if self.handler.image_manager is not None:
-                self.handler.image_manager.handle_response(apc)
+        if apc.startswith('G') and self.handler.image_manager is not None:
+            self.handler.image_manager.handle_response(apc)
     # }}}
 
     def _write_ready(self, handler: Handler, fd: int) -> None:

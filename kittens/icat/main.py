@@ -473,10 +473,7 @@ def process_single_item(
             from urllib.parse import urlparse
             from urllib.request import url2pathname
             pitem = urlparse(item)
-            if os.sep == '\\':
-                item = pitem.netloc + pitem.path
-            else:
-                item = pitem.path
+            item = pitem.netloc + pitem.path if os.sep == '\\' else pitem.path
             item = url2pathname(item)
             file_removed = process(item, args, parsed_opts, is_tempfile)
         else:

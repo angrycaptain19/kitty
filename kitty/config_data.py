@@ -545,9 +545,10 @@ def url_style(x: str) -> int:
     return url_style_map.get(x, url_style_map['curly'])
 
 
-url_style_map = dict(
-    ((v, i) for i, v in enumerate('none single double curly'.split()))
-)
+url_style_map = {
+    v: i for i, v in enumerate('none single double curly'.split())
+}
+
 
 
 o('url_style', 'curly', option_type=url_style)
@@ -774,11 +775,11 @@ def edge_width(x: str, converter: Callable[[str], float] = positive_float) -> Fl
     if num == 1:
         val = converter(parts[0])
         return FloatEdges(val, val, val, val)
-    if num == 2:
+    elif num == 2:
         v = converter(parts[0])
         h = converter(parts[1])
         return FloatEdges(h, v, h, v)
-    if num == 3:
+    elif num == 3:
         top, h, bottom = map(converter, parts)
         return FloatEdges(h, top, h, bottom)
     top, right, bottom, left = map(converter, parts)

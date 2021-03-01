@@ -87,7 +87,7 @@ def get_ssh_cli() -> Tuple[Set[str], Set[str]]:
             other_ssh_args.append(q[1])
         else:
             boolean_ssh_args.extend(q[1:])
-    return set('-' + x for x in boolean_ssh_args), set('-' + x for x in other_ssh_args)
+    return {'-' + x for x in boolean_ssh_args}, {'-' + x for x in other_ssh_args}
 
 
 def get_connection_data(args: List[str]) -> Optional[SSHConnectionData]:

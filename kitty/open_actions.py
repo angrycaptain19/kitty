@@ -99,11 +99,7 @@ def url_matches_criterion(purl: 'ParseResult', url: str, unquoted_path: str, mc:
 
     if mc.type == 'protocol':
         protocol = (purl.scheme or 'file').lower()
-        for key in mc.value.split(','):
-            if key.strip() == protocol:
-                return True
-        return False
-
+        return any(key.strip() == protocol for key in mc.value.split(','))
     if mc.type == 'fragment_matches':
         import re
         try:

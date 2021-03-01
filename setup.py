@@ -152,22 +152,21 @@ def cc_version() -> Tuple[str, Tuple[int, int]]:
     if 'CC' in os.environ:
         cc = os.environ['CC']
     else:
-        if is_macos:
+        if not is_macos and shutil.which('gcc'):
+            cc = 'gcc'
+        elif (
+            not is_macos
+            and not shutil.which('gcc')
+            and shutil.which('clang')
+            or is_macos
+        ):
             cc = 'clang'
         else:
-            if shutil.which('gcc'):
-                cc = 'gcc'
-            elif shutil.which('clang'):
-                cc = 'clang'
-            else:
-                cc = 'cc'
+            cc = 'cc'
     raw = subprocess.check_output([cc, '-dumpversion']).decode('utf-8')
     ver_ = raw.strip().split('.')[:2]
     try:
-        if len(ver_) == 1:
-            ver = int(ver_[0]), 0
-        else:
-            ver = int(ver_[0]), int(ver_[1])
+        ver = (int(ver_[0]), 0) if len(ver_) == 1 else (int(ver_[0]), int(ver_[1]))
     except Exception:
         ver = (0, 0)
     return cc, ver
@@ -1226,10 +1225,10 @@ def main() -> None:
     if args.action == 'clean':
         clean()
         return
-    launcher_dir = 'kitty/launcher'
-
     with CompilationDatabase(args.incremental) as cdb:
         args.compilation_database = cdb
+        launcher_dir = 'kitty/launcher'
+
         if args.action == 'build':
             build(args)
             if is_macos:

@@ -666,7 +666,7 @@ def main(args: List[str]) -> Optional[Dict[str, Any]]:
             print(e.args[0], file=sys.stderr)
             input(_('Press Enter to quit'))
         return None
-    if items and not (opts.customize_processing or opts.type == 'linenum'):
+    if items and not opts.customize_processing and opts.type != 'linenum':
         print('Extra command line arguments present: {}'.format(' '.join(items)), file=sys.stderr)
         input(_('Press Enter to quit'))
     try:

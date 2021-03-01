@@ -34,6 +34,9 @@ def shortcut_matches(s: SingleKey, ev: KeyEvent) -> bool:
         return s.key == ev.native_key and smods == mods
     if s.key == ev.key and mods == smods:
         return True
-    if ev.shifted_key and mods & 0b1 and (mods & 0b1110) == smods and ev.shifted_key == s.key:
-        return True
-    return False
+    return bool(
+        ev.shifted_key
+        and mods & 0b1
+        and (mods & 0b1110) == smods
+        and ev.shifted_key == s.key
+    )

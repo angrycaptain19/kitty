@@ -10,30 +10,13 @@ import sys
 import tempfile
 from contextlib import suppress
 
-if False:
-    tarball = sys.argv[-1]
-    dest = os.path.expanduser('~/.local/kitty.app')
-    shutil.rmtree(dest, ignore_errors=True)
-    os.makedirs(dest)
-    os.chdir(dest)
-    dest = os.path.expanduser('~/.local/bin/kitty')
-    with suppress(OSError):
-        os.remove(dest)
-    with suppress(OSError):
-        os.makedirs(os.path.dirname(dest))
-    subprocess.check_call(['tar', 'xJf', tarball])
-    os.symlink(os.path.abspath('bin/kitty'), dest)
-    print('kitty installed to ~/.local/kitty.app')
-
-
 # EOF_REMOTE
 
 HOST = 'ubuntu'
 
 base = os.path.dirname(os.path.abspath(__file__))
-if True:
-    sys.path.insert(0, base)
-    from kitty.constants import str_version
+sys.path.insert(0, base)
+from kitty.constants import str_version
 
 tarball = f'kitty-{str_version}-x86_64.txz'
 

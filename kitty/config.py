@@ -251,10 +251,7 @@ def nth_window(func: str, rest: str) -> FuncArgsType:
 @func_with_args('disable_ligatures_in')
 def disable_ligatures_in(func: str, rest: str) -> FuncArgsType:
     parts = rest.split(maxsplit=1)
-    if len(parts) == 1:
-        where, strategy = 'active', parts[0]
-    else:
-        where, strategy = parts
+    where, strategy = ('active', parts[0]) if len(parts) == 1 else parts
     if where not in ('active', 'all', 'tab'):
         raise ValueError('{} is not a valid set of windows to disable ligatures in'.format(where))
     if strategy not in ('never', 'always', 'cursor'):
@@ -509,21 +506,22 @@ def handle_symbol_map(key: str, val: str, ans: Dict[str, Any]) -> None:
 
 @special_handler
 def handle_font_features(key: str, val: str, ans: Dict[str, Any]) -> None:
-    if val != 'none':
-        parts = val.split()
-        if len(parts) < 2:
-            log_error("Ignoring invalid font_features {}".format(val))
-        else:
-            features = []
-            for feat in parts[1:]:
-                try:
-                    parsed = defines.parse_font_feature(feat)
-                except ValueError:
-                    log_error('Ignoring invalid font feature: {}'.format(feat))
-                else:
-                    features.append(FontFeature(feat, parsed))
-            if features:
-                ans['font_features'][parts[0]] = tuple(features)
+    if val == 'none':
+        return
+    parts = val.split()
+    if len(parts) < 2:
+        log_error("Ignoring invalid font_features {}".format(val))
+    else:
+        features = []
+        for feat in parts[1:]:
+            try:
+                parsed = defines.parse_font_feature(feat)
+            except ValueError:
+                log_error('Ignoring invalid font feature: {}'.format(feat))
+            else:
+                features.append(FontFeature(feat, parsed))
+        if features:
+            ans['font_features'][parts[0]] = tuple(features)
 
 
 @special_handler
@@ -550,9 +548,12 @@ def handle_deprecated_hide_window_decorations_aliases(key: str, val: str, ans: D
     if not hasattr(handle_deprecated_hide_window_decorations_aliases, key):
         setattr(handle_deprecated_hide_window_decorations_aliases, 'key', True)
         log_error('The option {} is deprecated. Use hide_window_decorations instead.'.format(key))
-    if to_bool(val):
-        if is_macos and key == 'macos_hide_titlebar' or (not is_macos and key == 'x11_hide_window_decorations'):
-            ans['hide_window_decorations'] = True
+    if to_bool(val) and (
+        is_macos
+        and key == 'macos_hide_titlebar'
+        or (not is_macos and key == 'x11_hide_window_decorations')
+    ):
+        ans['hide_window_decorations'] = True
 
 
 @deprecated_handler('macos_show_window_title_in_menubar')
@@ -615,8 +616,7 @@ def parse_config(lines: Iterable[str], check_keys: bool = True, accumulate_bad_l
 
 
 def parse_defaults(lines: Iterable[str], check_keys: bool = False) -> Dict[str, Any]:
-    ans = parse_config(lines, check_keys)
-    return ans
+    return parse_config(lines, check_keys)
 
 
 xc = init_config(config_lines(all_options), parse_defaults)

@@ -31,9 +31,9 @@ def main():
         characters += [u'日', u'本', u'💜', u'☃', u'🎩', u'🍀', u'、']
 
     patterns = []
-    for _ in range(0, args.patterns):
+    for _ in range(args.patterns):
         s = ""
-        for _ in range(0, args.linesperwrite):
+        for _ in range(args.linesperwrite):
             cnt = int(rng.gauss(args.length, args.length * args.lengthvar))
             if cnt < 0 or rng.random() < args.emptylines:
                 cnt = 0

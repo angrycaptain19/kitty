@@ -30,10 +30,10 @@ class TestKeys(BaseTest):
                 if isinstance(shifted_key, str):
                     shifted_key = ord(shifted_key)
                 ans += ':' + (f'{shifted_key}' if shifted_key else '')
-                if alternate_key:
-                    if isinstance(alternate_key, str):
-                        alternate_key = ord(alternate_key)
-                    ans += f':{alternate_key}'
+            if alternate_key:
+                if isinstance(alternate_key, str):
+                    alternate_key = ord(alternate_key)
+                ans += f':{alternate_key}'
             if mods or action > 1 or text:
                 m = 0
                 if mods & shift:

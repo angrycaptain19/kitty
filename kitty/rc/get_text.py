@@ -51,10 +51,12 @@ If specified get text from the window this command is run in, rather than the ac
     def response_from_kitty(self, boss: Boss, window: Optional[Window], payload_get: PayloadGetType) -> ResponseType:
         window = self.windows_for_match_payload(boss, window, payload_get)[0]
         if payload_get('extent') == 'selection':
-            ans = window.text_for_selection()
+            return window.text_for_selection()
         else:
-            ans = window.as_text(as_ansi=bool(payload_get('ansi')), add_history=payload_get('extent') == 'all')
-        return ans
+            return window.as_text(
+                as_ansi=bool(payload_get('ansi')),
+                add_history=payload_get('extent') == 'all',
+            )
 
 
 get_text = GetText()

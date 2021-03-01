@@ -27,14 +27,11 @@ class KeysHandler(Handler):
             REPEAT: 'REPEAT',
             RELEASE: 'RELEASE'
         }[key_event.type]
-        lmods = []
-        for m, name in {
+        lmods = [name for m, name in {
                 SHIFT: 'Shift',
                 ALT: 'Alt',
                 CTRL: 'Ctrl',
-                SUPER: 'Super'}.items():
-            if key_event.mods & m:
-                lmods.append(name)
+                SUPER: 'Super'}.items() if key_event.mods & m]
         mods = '+'.join(lmods)
         if mods:
             mods += '+'
@@ -48,12 +45,12 @@ class KeysHandler(Handler):
         self.cmd.styled(rep, fg='magenta')
         if (key_event.shifted_key or key_event.alternate_key):
             self.print()
-            if key_event.shifted_key:
-                self.cmd.colored('Shifted key: ', 'gray')
-                self.print(key_event.shifted_key + ' ', end='')
-            if key_event.alternate_key:
-                self.cmd.colored('Alternate key: ', 'gray')
-                self.print(key_event.alternate_key + ' ', end='')
+        if key_event.shifted_key:
+            self.cmd.colored('Shifted key: ', 'gray')
+            self.print(key_event.shifted_key + ' ', end='')
+        if key_event.alternate_key:
+            self.cmd.colored('Alternate key: ', 'gray')
+            self.print(key_event.alternate_key + ' ', end='')
         self.print()
         self.print()
 

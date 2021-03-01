@@ -83,10 +83,7 @@ def do_queries(queries: Iterable, cli_opts: QueryTerminalCLIOptions) -> Dict[str
     def more_needed(data: bytes) -> bool:
         nonlocal received
         received += data
-        for a in actions:
-            if a.more_needed(received):
-                return True
-        return False
+        return any(a.more_needed(received) for a in actions)
 
     with TTYIO() as ttyio:
         ttyio.send(qstring)

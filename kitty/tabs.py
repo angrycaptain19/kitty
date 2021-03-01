@@ -438,9 +438,10 @@ class Tab:  # {{{
                 self.relayout()
         elif isinstance(delta, str):
             neighbor = self.neighboring_group_id(delta)
-            if neighbor:
-                if self.current_layout.move_window_to_group(self.windows, neighbor):
-                    self.relayout()
+            if neighbor and self.current_layout.move_window_to_group(
+                self.windows, neighbor
+            ):
+                self.relayout()
 
     def move_window_to_top(self) -> None:
         n = self.windows.active_group_idx
@@ -579,10 +580,9 @@ class TabManager:  # {{{
             sync_os_window_title(self.os_window_id)
 
     def resize(self, only_tabs: bool = False) -> None:
-        if not only_tabs:
-            if not self.tab_bar_hidden:
-                self.tab_bar.layout()
-                self.mark_tab_bar_dirty()
+        if not only_tabs and not self.tab_bar_hidden:
+            self.tab_bar.layout()
+            self.mark_tab_bar_dirty()
         for tab in self.tabs:
             tab.relayout()
 
@@ -659,7 +659,7 @@ class TabManager:  # {{{
     def number_of_windows(self) -> int:
         count = 0
         for tab in self:
-            for window in tab:
+            for _ in tab:
                 count += 1
         return count
 

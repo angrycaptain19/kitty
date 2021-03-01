@@ -44,17 +44,11 @@ class WindowGroup:
         return iter(self.windows)
 
     def __contains__(self, window: WindowType) -> bool:
-        for w in self.windows:
-            if w is window:
-                return True
-        return False
+        return any(w is window for w in self.windows)
 
     @property
     def needs_attention(self) -> bool:
-        for w in self.windows:
-            if w.needs_attention:
-                return True
-        return False
+        return any(w.needs_attention for w in self.windows)
 
     @property
     def base_window_id(self) -> int:
@@ -371,8 +365,4 @@ class WindowList:
 
     @property
     def num_visble_groups(self) -> int:
-        ans = 0
-        for gr in self.groups:
-            if gr.is_visible_in_layout:
-                ans += 1
-        return ans
+        return sum(bool(gr.is_visible_in_layout) for gr in self.groups)

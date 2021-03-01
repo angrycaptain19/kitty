@@ -97,12 +97,11 @@ windows).
                     self.fatal(f'{parts[1]} is not a number')
             for q in which:
                 settings[q] = val
-        ans = {
+        return {
             'match_window': opts.match, 'match_tab': opts.match_tab,
             'all': opts.all, 'configured': opts.configured,
             'settings': settings
         }
-        return ans
 
     def response_from_kitty(self, boss: Boss, window: Optional[Window], payload_get: PayloadGetType) -> ResponseType:
         windows = self.windows_for_payload(boss, window, payload_get)

@@ -420,9 +420,8 @@ shortcut_slugs: Dict[str, Tuple[str, str]] = {}
 
 def parse_opt_node(env: Any, sig: str, signode: Any) -> str:
     """Transform an option description into RST nodes."""
-    count = 0
     firstname = ''
-    for potential_option in sig.split(', '):
+    for count, potential_option in enumerate(sig.split(', ')):
         optname = potential_option.strip()
         if count:
             signode += addnodes.desc_addname(', ', ', ')
@@ -434,7 +433,6 @@ def parse_opt_node(env: Any, sig: str, signode: Any) -> str:
         else:
             signode['allnames'].append(optname)
             opt_aliases[optname] = firstname
-        count += 1
     if not firstname:
         raise ValueError('{} is not a valid opt'.format(sig))
     return firstname

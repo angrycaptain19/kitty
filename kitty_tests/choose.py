@@ -25,8 +25,7 @@ def run(input_data, query, **kw):
 class TestMatcher(BaseTest):
 
     def run_matcher(self, *args, **kwargs):
-        result = run(*args, **kwargs)
-        return result
+        return run(*args, **kwargs)
 
     def basic_test(self, inp, query, out, **k):
         result = self.run_matcher(inp, query, **k)

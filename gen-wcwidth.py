@@ -53,7 +53,7 @@ word_search_map: DefaultDict[str, Set[int]] = defaultdict(set)
 zwj = 0x200d
 flag_codepoints = frozenset(range(0x1F1E6, 0x1F1E6 + 26))
 marks = set(emoji_skin_tone_modifiers) | {zwj} | flag_codepoints
-not_assigned = set(range(0, sys.maxunicode))
+not_assigned = set(range(sys.maxunicode))
 
 
 def parse_ucd() -> None:
@@ -118,12 +118,10 @@ def parse_ucd() -> None:
 
 def parse_range_spec(spec: str) -> Set[int]:
     spec = spec.strip()
-    if '..' in spec:
-        chars_ = tuple(map(lambda x: int(x, 16), filter(None, spec.split('.'))))
-        chars = set(range(chars_[0], chars_[1] + 1))
-    else:
-        chars = {int(spec, 16)}
-    return chars
+    if '..' not in spec:
+        return {int(spec, 16)}
+    chars_ = tuple(map(lambda x: int(x, 16), filter(None, spec.split('.'))))
+    return set(range(chars_[0], chars_[1] + 1))
 
 
 def split_two(line: str) -> Tuple[Set[int], str]:
@@ -212,7 +210,7 @@ def parse_eaw() -> None:
         if eaw == 'A':
             ambiguous |= chars
             seen |= chars
-        elif eaw == 'W' or eaw == 'F':
+        elif eaw in ['W', 'F']:
             doublewidth |= chars
             seen |= chars
     doublewidth |= set(range(0x3400, 0x4DBF + 1)) - seen

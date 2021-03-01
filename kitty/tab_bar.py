@@ -167,9 +167,9 @@ def draw_tab_with_fade(draw_data: DrawData, screen: Screen, tab: TabBarData, bef
         screen.cursor.x = before
         draw_title(draw_data, screen, tab, index)
         extra = screen.cursor.x - before - max_title_length
-        if extra > 0:
-            screen.cursor.x -= extra + 1
-            screen.draw('…')
+    if extra > 0:
+        screen.cursor.x -= extra + 1
+        screen.draw('…')
     for bg in reversed(fade_colors):
         if extra >= 0:
             break
@@ -229,10 +229,7 @@ def draw_tab_with_powerline(draw_data: DrawData, screen: Screen, tab: TabBarData
     if tab.is_active or is_last:
         screen.draw(' ')
         screen.cursor.fg = tab_bg
-        if is_last:
-            screen.cursor.bg = default_bg
-        else:
-            screen.cursor.bg = inactive_bg
+        screen.cursor.bg = default_bg if is_last else inactive_bg
         screen.draw(separator_symbol)
     else:
         screen.draw(f' {separator_alt_symbol}')

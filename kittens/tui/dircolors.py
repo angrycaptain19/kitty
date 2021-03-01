@@ -326,8 +326,7 @@ class Dircolors:
         """ Output the database in the format used by the LS_COLORS environment variable. """
 
         def gen_pairs() -> Generator[Tuple[str, str], None, None]:
-            for pair in self.codes.items():
-                yield pair
+            yield from self.codes.items()
             for pair in self.extensions.items():
                 # change .xyz to *.xyz
                 yield '*' + pair[0], pair[1]

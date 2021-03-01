@@ -95,7 +95,7 @@ def files_in(folder):
 
 def expand_dirs(items, exclude=lambda x: x.endswith('.so')):
     items = set(items)
-    dirs = set(x for x in items if os.path.isdir(x))
+    dirs = {x for x in items if os.path.isdir(x)}
     items.difference_update(dirs)
     for x in dirs:
         items.update({y for y in files_in(x) if not exclude(y)})

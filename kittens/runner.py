@@ -127,10 +127,12 @@ def all_kitten_names() -> FrozenSet[str]:
         from importlib.resources import contents
     except ImportError:
         from importlib_resources import contents  # type: ignore
-    ans = []
-    for name in contents('kittens'):
-        if '__' not in name and '.' not in name and name != 'tui':
-            ans.append(name)
+    ans = [
+        name
+        for name in contents('kittens')
+        if '__' not in name and '.' not in name and name != 'tui'
+    ]
+
     return frozenset(ans)
 
 

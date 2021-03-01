@@ -94,10 +94,7 @@ def option(
     defval_type = type(defval)
     if defval_type is not str:
         if option_type is to_string:
-            if defval_type is bool:
-                option_type = to_bool
-            else:
-                option_type = defval_type
+            option_type = to_bool if defval_type is bool else defval_type
         if defval_type is bool:
             defval = 'yes' if defval else 'no'
         else:
@@ -198,8 +195,7 @@ def wrapped_block(lines: Iterable[str]) -> Generator[str, None, None]:
                 else:
                     yield '#: ' + line
         else:
-            for line in wrapper.wrap('\n'.join(block)):
-                yield line
+            yield from wrapper.wrap('\n'.join(block))
 
 
 def render_block(text: str) -> str:

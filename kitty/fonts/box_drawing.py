@@ -68,10 +68,9 @@ def get_holes(sz: int, hole_sz: int, num: int) -> List[Tuple[int, ...]]:
     elif num == 3:
         ssz = (sz - 3 * hole_sz) // 4
         pts = [ssz + hole_sz // 2, 2 * ssz + hole_sz // 2 + hole_sz, 3 * ssz + 2 * hole_sz + hole_sz // 2]
-    holes = []
-    for c in pts:
-        holes.append(tuple(range(c - hole_sz // 2, c - hole_sz // 2 + hole_sz)))
-    return holes
+    return [
+        tuple(range(c - hole_sz // 2, c - hole_sz // 2 + hole_sz)) for c in pts
+    ]
 
 
 hole_factor = 8
@@ -205,10 +204,7 @@ def line_equation(x1: int, y1: int, x2: int, y2: int) -> Callable[[int], float]:
 @supersampled()
 def triangle(buf: BufType, width: int, height: int, left: bool = True) -> None:
     ay1, by1, y2 = 0, height - 1, height // 2
-    if left:
-        x1, x2 = 0, width - 1
-    else:
-        x1, x2 = width - 1, 0
+    x1, x2 = (0, width - 1) if left else (width - 1, 0)
     uppery = line_equation(x1, ay1, x2, y2)
     lowery = line_equation(x1, by1, x2, y2)
     xlimits = [(uppery(x), lowery(x)) for x in range(width)]
@@ -217,7 +213,7 @@ def triangle(buf: BufType, width: int, height: int, left: bool = True) -> None:
 
 @supersampled()
 def corner_triangle(buf: BufType, width: int, height: int, corner: str) -> None:
-    if corner == 'top-right' or corner == 'bottom-left':
+    if corner in ['top-right', 'bottom-left']:
         diagonal_y = line_equation(0, 0, width - 1, height - 1)
         if corner == 'top-right':
             xlimits = [(0., diagonal_y(x)) for x in range(width)]
@@ -333,7 +329,7 @@ def cubic_bezier(start: Tuple[int, int], end: Tuple[int, int], c1: Tuple[int, in
         def f(t: float) -> float:
             tm1 = 1 - t
             tm1_3 = tm1 * tm1 * tm1
-            t_3 = t * t * t
+            t_3 = t**2 * t
             return tm1_3 * p0 + 3 * t * tm1 * (tm1 * p1 + t * p2) + t_3 * p3
         return f
 
@@ -580,10 +576,12 @@ def shade(buf: BufType, width: int, height: int, light: bool = False, invert: bo
                 break
             off = width * y
             for c in range(number_of_cols):
-                if light:
-                    fill = (c % 4) == (0 if fill_even else 2)
-                else:
-                    fill = (c % 2 == 0) == fill_even
+                fill = (
+                    (c % 4) == (0 if fill_even else 2)
+                    if light
+                    else (c % 2 == 0) == fill_even
+                )
+
                 if fill:
                     for xc in nums:
                         x = (c * square_sz) + xc
@@ -620,10 +618,7 @@ def sextant(buf: BufType, width: int, height: int, level: int = 1, which: int = 
             y_start, y_end = height // 3, 2 * height // 3
         else:
             y_start, y_end = 2 * height // 3, height
-        if col == 0:
-            x_start, x_end = 0, width // 2
-        else:
-            x_start, x_end = width // 2, width
+        x_start, x_end = (0, width // 2) if col == 0 else (width // 2, width)
         for r in range(y_start, y_end):
             off = r * width
             for c in range(x_start, x_end):
@@ -684,10 +679,10 @@ def eight_range(size: int, which: int) -> range:
 
 def eight_bar(buf: BufType, width: int, height: int, level: int = 1, which: int = 0, horizontal: bool = False) -> None:
     if horizontal:
-        x_range = range(0, width)
+        x_range = range(width)
         y_range = eight_range(height, which)
     else:
-        y_range = range(0, height)
+        y_range = range(height)
         x_range = eight_range(width, which)
     for y in y_range:
         offset = y * width
@@ -702,12 +697,12 @@ def eight_block(buf: BufType, width: int, height: int, level: int = 1, which: Tu
 
 def braille_dot(buf: BufType, width: int, height: int, col: int, row: int) -> None:
     dot_height = max(1, height // 8)
-    dot_width = max(1, width // 4)
     top_margin = (height - 7 * dot_height) // 2
-    left_margin = (width - 3 * dot_width) // 2
-    x_start = left_margin + (col * 2 * dot_width)
     y_start = top_margin + (row * 2 * dot_height)
     if y_start < height:
+        dot_width = max(1, width // 4)
+        left_margin = (width - 3 * dot_width) // 2
+        x_start = left_margin + (col * 2 * dot_width)
         for y in range(y_start, min(height, y_start + dot_height)):
             if x_start < width:
                 offset = y * width

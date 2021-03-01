@@ -133,10 +133,7 @@ def identify(path: str) -> ImageData:
     import json
     q = '{"fmt":"%m","canvas":"%g","transparency":"%A","gap":"%T","index":"%p","size":"%wx%h","dpi":"%xx%y","dispose":"%D"},'
     exe = find_exe('magick')
-    if exe:
-        cmd = [exe, 'identify']
-    else:
-        cmd = ['identify']
+    cmd = [exe, 'identify'] if exe else ['identify']
     p = run_imagemagick(path, cmd + ['-format', q, '--', path])
     data = json.loads(b'[' + p.stdout.rstrip(b',') + b']')
     first = data[0]

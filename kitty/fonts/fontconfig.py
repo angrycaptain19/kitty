@@ -42,10 +42,7 @@ def create_font_map(all_fonts: Tuple[FontConfigPattern, ...]) -> FontMap:
 
 @lru_cache()
 def all_fonts_map(monospaced: bool = True) -> FontMap:
-    if monospaced:
-        ans = fc_list(FC_DUAL) + fc_list(FC_MONO)
-    else:
-        ans = fc_list()
+    ans = fc_list(FC_DUAL) + fc_list(FC_MONO) if monospaced else fc_list()
     return create_font_map(ans)
 
 
@@ -54,10 +51,7 @@ def list_fonts() -> Generator[ListedFont, None, None]:
         f = fd.get('family')
         if f and isinstance(f, str):
             fn_ = fd.get('full_name')
-            if fn_:
-                fn = str(fn_)
-            else:
-                fn = (f + ' ' + str(fd.get('style', ''))).strip()
+            fn = str(fn_) if fn_ else (f + ' ' + str(fd.get('style', ''))).strip()
             is_mono = fd.get('spacing') in ('MONO', 'DUAL')
             yield {'family': f, 'full_name': fn, 'postscript_name': str(fd.get('postscript_name', '')), 'is_monospace': is_mono}
 

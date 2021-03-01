@@ -106,10 +106,7 @@ def init_glfw(opts: OptionsStub, debug_keyboard: bool = False) -> str:
 
 def get_macos_shortcut_for(opts: OptionsStub, function: str = 'new_os_window') -> Optional[SingleKey]:
     ans = None
-    candidates = []
-    for k, v in opts.keymap.items():
-        if v.func == function:
-            candidates.append(k)
+    candidates = [k for k, v in opts.keymap.items() if v.func == function]
     if candidates:
         from .fast_data_types import cocoa_set_global_shortcut
 
@@ -254,8 +251,8 @@ def get_editor_from_env(shell_env: Mapping[str, str]) -> Optional[str]:
         editor = shell_env.get(var)
         if editor:
             editor = resolve_editor_cmd(editor, shell_env)
-            if editor:
-                return editor
+        if editor:
+            return editor
 
 
 def expand_listen_on(listen_on: str, from_config_file: bool) -> str:

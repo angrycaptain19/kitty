@@ -36,10 +36,7 @@ ALL_ACTIONS = 'man html build tag sdist upload website'.split()
 
 
 def call(*cmd: str, cwd: Optional[str] = None) -> None:
-    if len(cmd) == 1:
-        q = shlex.split(cmd[0])
-    else:
-        q = list(cmd)
+    q = shlex.split(cmd[0]) if len(cmd) == 1 else list(cmd)
     ret = subprocess.Popen(q, cwd=cwd).wait()
     if ret != 0:
         raise SystemExit(ret)

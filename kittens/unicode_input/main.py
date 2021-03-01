@@ -188,10 +188,7 @@ class Table:
                 w = wcswidth(c)
                 if w < 2:
                     text += ' ' * (2 - w)
-                if len(desc) > space_for_desc:
-                    text += desc[:space_for_desc - 1] + '…'
-                else:
-                    text += desc
+                text += desc[:space_for_desc - 1] + '…' if len(desc) > space_for_desc else desc
                 extra = space_for_desc - len(desc)
                 if extra > 0:
                     text += ' ' * extra
@@ -286,9 +283,12 @@ class UnicodeInput(Handler):
     @property
     def resolved_current_char(self) -> Optional[str]:
         ans = self.current_char
-        if ans:
-            if self.emoji_variation and is_emoji_presentation_base(ord(ans[0])):
-                ans += self.emoji_variation
+        if (
+            ans
+            and self.emoji_variation
+            and is_emoji_presentation_base(ord(ans[0]))
+        ):
+            ans += self.emoji_variation
         return ans
 
     def update_codepoints(self) -> None:

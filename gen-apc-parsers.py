@@ -21,9 +21,7 @@ def resolve_keys(keymap: KeymapType) -> DefaultDict[str, List[str]]:
 
 
 def enum(keymap: KeymapType) -> str:
-    lines = []
-    for ch, (attr, atype) in keymap.items():
-        lines.append(f"{attr}='{ch}'")
+    lines = [f"{attr}='{ch}'" for ch, (attr, atype) in keymap.items()]
     return '''
     enum KEYS {{
         {}

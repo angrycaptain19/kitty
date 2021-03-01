@@ -146,10 +146,7 @@ def create_sessions(
     default_session: Optional[str] = None
 ) -> Generator[Session, None, None]:
     if args and args.session:
-        if args.session == '-':
-            f = sys.stdin
-        else:
-            f = open(args.session)
+        f = sys.stdin if args.session == '-' else open(args.session)
         with f:
             session_data = f.read()
         yield from parse_session(session_data, opts, getattr(args, 'title', None))

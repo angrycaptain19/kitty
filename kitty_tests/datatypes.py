@@ -67,7 +67,7 @@ class TestDataTypes(BaseTest):
         lb2 = LineBuf(5, 5)
         lb2.copy_old(lb)
         lb.index(0, 4)
-        for i in range(0, 4):
+        for i in range(4):
             self.ae(lb.line(i), lb2.line(i + 1))
         self.ae(lb.line(4), lb2.line(0))
         lb = filled_line_buf(5, 5, filled_cursor())
@@ -256,7 +256,7 @@ class TestDataTypes(BaseTest):
 
         def lspace_test(n, scheme='http'):
             lf = create(' ' * n + scheme + '://acme.com')
-            for i in range(0, n):
+            for i in range(n):
                 self.ae(lf.url_start_at(i), len(lf))
             for i in range(n, len(lf)):
                 self.ae(lf.url_start_at(i), n)

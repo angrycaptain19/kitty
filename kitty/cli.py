@@ -233,11 +233,11 @@ def wrap(text: str, limit: int = 80) -> Iterator[str]:
             if ch == 'm':
                 state = NORMAL
             continue
-        if ch == '\033':
-            state = IN_FORMAT
-            continue
         if ch == ' ':
             last_space_at = i
+        elif ch == '\033':
+            state = IN_FORMAT
+            continue
         if chars_in_line < limit:
             chars_in_line += 1
             continue
@@ -391,8 +391,7 @@ def seq_as_rst(
                 a(textwrap.indent('Choices: :code:`{}`'.format(', '.join(sorted(opt['choices']))), ' ' * 4))
             a('')
 
-    text = '\n'.join(blocks)
-    return text
+    return '\n'.join(blocks)
 
 
 def as_type_stub(seq: OptionSpecSeq, disabled: OptionSpecSeq, class_name: str, extra_fields: Sequence[str] = ()) -> str:
@@ -428,10 +427,7 @@ def defval_for_opt(opt: OptionDict) -> Any:
     dv: Any = opt.get('default')
     typ = opt.get('type', '')
     if typ.startswith('bool-'):
-        if dv is None:
-            dv = False if typ == 'bool-set' else True
-        else:
-            dv = dv.lower() in ('true', 'yes', 'y')
+        dv = typ != 'bool-set' if dv is None else dv.lower() in ('true', 'yes', 'y')
     elif typ == 'list':
         dv = []
     elif typ in ('int', 'float'):
@@ -748,10 +744,7 @@ def parse_args(
     options = parse_option_spec(ospec())
     seq, disabled = options
     oc = Options(seq, usage, message, appname)
-    if result_class is not None:
-        ans = result_class()
-    else:
-        ans = cast(T, CLIOptions())
+    ans = result_class() if result_class is not None else cast(T, CLIOptions())
     return ans, parse_cmdline(oc, disabled, ans, args=args)
 
 
@@ -767,11 +760,8 @@ def print_shortcut(key_sequence: Iterable[SingleKey], action: KeyAction) -> None
     mmap = {'shift': GLFW_MOD_SHIFT, 'alt': GLFW_MOD_ALT, 'ctrl': GLFW_MOD_CONTROL, ('cmd' if is_macos else 'super'): GLFW_MOD_SUPER}
     keys = []
     for key_spec in key_sequence:
-        names = []
         mods, is_native, key = key_spec
-        for name, val in mmap.items():
-            if mods & val:
-                names.append(name)
+        names = [name for name, val in mmap.items() if mods & val]
         if key:
             kname = glfw_get_key_name(0, key) if is_native else glfw_get_key_name(key, 0)
             names.append(kname or f'{key}')

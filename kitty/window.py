@@ -418,26 +418,24 @@ class Window:
         if field == 'env':
             assert isinstance(pat, tuple)
             key_pat, val_pat = pat
-            for key, val in self.child.environ.items():
-                if key_pat.search(key) is not None and (
-                        val_pat is None or val_pat.search(val) is not None):
-                    return True
-            return False
+            return any(
+                key_pat.search(key) is not None
+                and (val_pat is None or val_pat.search(val) is not None)
+                for key, val in self.child.environ.items()
+            )
+
         assert not isinstance(pat, tuple)
 
         if field == 'id':
-            return True if pat.pattern == str(self.id) else False
+            return pat.pattern == str(self.id)
         if field == 'pid':
-            return True if pat.pattern == str(self.child.pid) else False
+            return pat.pattern == str(self.child.pid)
         if field == 'title':
             return pat.search(self.override_title or self.title) is not None
         if field in 'cwd':
             return pat.search(self.child.current_cwd or self.child.cwd) is not None
         if field == 'cmdline':
-            for x in self.child.cmdline:
-                if pat.search(x) is not None:
-                    return True
-            return False
+            return any(pat.search(x) is not None for x in self.child.cmdline)
         return False
 
     def set_visible_in_layout(self, val: bool) -> None:
@@ -499,9 +497,11 @@ class Window:
         self.write_to_child(text)
 
     def write_to_child(self, data: Union[str, bytes]) -> None:
-        if data:
-            if get_boss().child_monitor.needs_write(self.id, data) is not True:
-                log_error(f'Failed to write to child {self.id} as it does not exist')
+        if (
+            data
+            and get_boss().child_monitor.needs_write(self.id, data) is not True
+        ):
+            log_error(f'Failed to write to child {self.id} as it does not exist')
 
     def title_updated(self) -> None:
         update_window_title(self.os_window_id, self.tab_id, self.id, self.title)
@@ -533,18 +533,17 @@ class Window:
                 purl = urlparse(url)
             except Exception:
                 return
-            if (not purl.scheme or purl.scheme == 'file'):
-                if purl.netloc:
-                    from socket import gethostname
-                    try:
-                        hostname = gethostname()
-                    except Exception:
-                        hostname = ''
-                    remote_hostname = purl.netloc.partition(':')[0]
-                    if remote_hostname and remote_hostname != hostname and remote_hostname != 'localhost':
-                        self.handle_remote_file(purl.netloc, unquote(purl.path))
-                        return
-                    url = urlunparse(purl._replace(netloc=''))
+            if ((not purl.scheme or purl.scheme == 'file')) and purl.netloc:
+                from socket import gethostname
+                try:
+                    hostname = gethostname()
+                except Exception:
+                    hostname = ''
+                remote_hostname = purl.netloc.partition(':')[0]
+                if remote_hostname and remote_hostname != hostname and remote_hostname != 'localhost':
+                    self.handle_remote_file(purl.netloc, unquote(purl.path))
+                    return
+                url = urlunparse(purl._replace(netloc=''))
             if self.opts.allow_hyperlinks & 0b10:
                 from kittens.tui.operations import styled
                 get_boss()._run_kitten('ask', ['--type=choices', '--message', _(
@@ -625,10 +624,7 @@ class Window:
     def change_titlebar_color(self) -> None:
         val = self.opts.macos_titlebar_color
         if val:
-            if (val & 0xff) == 1:
-                val = self.screen.color_profile.default_bg
-            else:
-                val = val >> 8
+            val = self.screen.color_profile.default_bg if (val & 0xff) == 1 else val >> 8
             set_titlebar_color(self.os_window_id, val)
 
     def change_colors(self, changes: Dict[DynamicColor, Optional[str]]) -> None:
@@ -862,20 +858,22 @@ class Window:
         self.screen.paste_bytes(text)
 
     def paste(self, text: Union[str, bytes]) -> None:
-        if text and not self.destroyed:
-            if isinstance(text, str):
-                text = text.encode('utf-8')
-            if self.screen.in_bracketed_paste_mode:
-                while True:
-                    new_text = text.replace(b'\033[201~', b'').replace(b'\x9b201~', b'')
-                    if len(text) == len(new_text):
-                        break
-                    text = new_text
-            else:
-                # Workaround for broken editors like nano that cannot handle
-                # newlines in pasted text see https://github.com/kovidgoyal/kitty/issues/994
-                text = text.replace(b'\r\n', b'\n').replace(b'\n', b'\r')
-            self.screen.paste(text)
+        if not text or self.destroyed:
+            return
+
+        if isinstance(text, str):
+            text = text.encode('utf-8')
+        if self.screen.in_bracketed_paste_mode:
+            while True:
+                new_text = text.replace(b'\033[201~', b'').replace(b'\x9b201~', b'')
+                if len(text) == len(new_text):
+                    break
+                text = new_text
+        else:
+            # Workaround for broken editors like nano that cannot handle
+            # newlines in pasted text see https://github.com/kovidgoyal/kitty/issues/994
+            text = text.replace(b'\r\n', b'\n').replace(b'\n', b'\r')
+        self.screen.paste(text)
 
     def copy_to_clipboard(self) -> None:
         text = self.text_for_selection()

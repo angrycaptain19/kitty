@@ -200,10 +200,9 @@ def command_for_open(program: Union[str, List[str]] = 'default') -> List[str]:
         from .conf.utils import to_cmdline
         program = to_cmdline(program)
     if program == ['default']:
-        cmd = ['open'] if is_macos else ['xdg-open']
+        return ['open'] if is_macos else ['xdg-open']
     else:
-        cmd = program
-    return cmd
+        return program
 
 
 def open_cmd(cmd: Union[Iterable[str], List[str]], arg: Union[None, Iterable[str], str] = None, cwd: Optional[str] = None) -> PopenType:
@@ -345,11 +344,10 @@ def single_instance_unix(name: str) -> bool:
         try:
             s.bind(socket_path)
         except OSError as err:
-            if err.errno in (errno.EADDRINUSE, errno.EEXIST):
-                os.unlink(socket_path)
-                s.bind(socket_path)
-            else:
+            if err.errno not in (errno.EADDRINUSE, errno.EEXIST):
                 raise
+            os.unlink(socket_path)
+            s.bind(socket_path)
         single_instance.socket = s  # prevent garbage collection from closing the socket
         atexit.register(remove_socket_file, s, socket_path)
         s.listen()
@@ -504,11 +502,9 @@ def func_name(f: Any) -> str:
 def resolved_shell(opts: Optional[Options] = None) -> List[str]:
     q: str = getattr(opts, 'shell', '.')
     if q == '.':
-        ans = [shell_path]
-    else:
-        import shlex
-        ans = shlex.split(q)
-    return ans
+        return [shell_path]
+    import shlex
+    return shlex.split(q)
 
 
 @run_once
@@ -523,10 +519,14 @@ def system_paths_on_macos() -> List[str]:
         with f:
             for line in f:
                 line = line.strip()
-                if line and not line.startswith('#') and line not in seen:
-                    if os.path.isdir(line):
-                        seen.add(line)
-                        entries.append(line)
+                if (
+                    line
+                    and not line.startswith('#')
+                    and line not in seen
+                    and os.path.isdir(line)
+                ):
+                    seen.add(line)
+                    entries.append(line)
     try:
         files = os.listdir('/etc/paths.d')
     except FileNotFoundError:
